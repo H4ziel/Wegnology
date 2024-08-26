@@ -7,7 +7,7 @@
 #include "nvs_flash.h"
 
 #define SSID "Tomatinho"
-#define PASSWORD "naoseiasenha" 
+#define PASSWORD "x" 
 
 static const char *TAG = "WIFI";
     
