@@ -1,5 +1,7 @@
 #include <string.h>
 #include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+#include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "esp_wifi.h"
 #include "esp_log.h"
@@ -7,9 +9,9 @@
 #include "nvs_flash.h"
 
 #define SSID "Tomatinho"
-#define PASSWORD "x" 
+#define PASSWORD "" 
 
-static const char *TAG = "WIFI";
+extern xSemaphoreHandle wifiConnection;
     
 void wifi_connect(void)
 {
@@ -26,5 +28,9 @@ void wifi_connect(void)
 
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &_wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
-    ESP_ERROR_CHECK(esp_wifi_connect());
+    
+    if(esp_wifi_connect() == ESP_OK)
+    {
+        xSemaphoreGive(wifiConnection);
+    }
 }
