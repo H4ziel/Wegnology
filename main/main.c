@@ -1,8 +1,21 @@
 #include "wifi/wifi.h"
 #include "mqtt/mqtt.h"
+#include "dht11.h"
+
+#define DHT_PIN 4
+
+const char *TAG = "DHT11";
 
 xSemaphoreHandle wifiConnection;
 xSemaphoreHandle mqttConnection;
+
+typedef struct{
+    int temp;
+    int humidity;
+    char *msg;
+}measures;
+
+measures *variables;
 
 void wifi_treat(void *args)
 {
@@ -17,18 +30,18 @@ void wifi_treat(void *args)
 
 void mqtt_treat(void *args)
 {
-    char msg[50];
-    float fake_temperatura;
+    measures *vars = (measures*)args;
     if(xSemaphoreTake(mqttConnection, portMAX_DELAY))
     {
         while(true)
-        {
-            fake_temperatura = 20.0 + (float)rand()/(float)(RAND_MAX/10.0);
-            sprintf(msg, "{\n  \"data\":\n  {\n    \"Test\": %f\n  }\n}", 
-                                                            fake_temperatura);
-            mqtt_publish_msg("wnology/66cb41ac09d56a857e5fdda2/state", msg);
-            printf("{\n  \"data\":\n  {\n    \"Test\": %f\n  }\n}", 
-                                                            fake_temperatura);
+        {  
+            vars->temp = DHT11_read().temperature;
+            vars->humidity = DHT11_read().humidity;
+            sprintf(vars->msg, "{\n  \"data\":\n  {\n    \"Temperatura\": %d,\n    \"Umidade\": %d\n  }\n}", 
+                                                    vars->temp, vars->humidity);
+            mqtt_publish_msg("wnology/66d2514337e3c689cf394eac/state", 
+                                                                     vars->msg);
+            printf(vars->msg);
             vTaskDelay(pdMS_TO_TICKS(3000));
         }
     }
@@ -55,6 +68,10 @@ void app_main(void)
 
     wifi_connect();
 
-    xTaskCreate(wifi_treat, "Tratamento Wifi", 4096, NULL, 1, NULL);
-    xTaskCreate(mqtt_treat, "Tratamento Mqtt", 4096, NULL, 1, NULL);
+    DHT11_init(DHT_PIN);
+
+    xTaskCreatePinnedToCore(wifi_treat, "Tratamento Wifi", 3000, NULL, 1, NULL,
+                                                                             0);
+    xTaskCreatePinnedToCore(mqtt_treat, "Tratamento Mqtt", 3000, 
+                                                 (void*)&variables, 1, NULL, 0);
 }
