@@ -8,8 +8,8 @@
 #include "esp_event.h"
 #include "nvs_flash.h"
 
-#define SSID "NETCASA"
-#define PASSWORD "123net123" 
+#define SSID "RedmiMa"
+#define PASSWORD "naoseiasenha" 
 
 extern xSemaphoreHandle wifiConnection;
     

@@ -35,8 +35,6 @@ static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event)
     {
         case MQTT_EVENT_CONNECTED:
             ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-            esp_mqtt_client_subscribe(client, 
-                                   "wnology/66d2514337e3c689cf394eac/state", 0);
             xSemaphoreGive(mqttConnection);
             break;
         case MQTT_EVENT_DISCONNECTED:
@@ -80,7 +78,7 @@ void mqtt_start(void)
 {
     esp_mqtt_client_config_t mqtt_config = 
     {
-        .broker.address.uri = "mqtt://66d24d27dcb9cc1a405b3d4a.wnology.io",
+        .broker.address.uri = "mqtt://dht11app.wnology.io",
         .broker.address.port = 1883,
         .credentials.username = "798cdb11-ce66-4944-a446-10e9f90662d1",
         .credentials.authentication.password = 

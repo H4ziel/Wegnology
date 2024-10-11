@@ -42,7 +42,7 @@ void mqtt_treat(void *args)
             mqtt_publish_msg("wnology/66d2514337e3c689cf394eac/state", 
                                                                      vars->msg);
             printf(vars->msg);
-            vTaskDelay(pdMS_TO_TICKS(3000));
+            vTaskDelay(pdMS_TO_TICKS(2000));
         }
     }
 }
